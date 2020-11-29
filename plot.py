@@ -39,3 +39,4 @@ class dynamicplot:
         self.fig.canvas.draw()
         
         time.sleep(1)
+#adamwang push test
