@@ -23,7 +23,7 @@ class dynamicplot:
         self.acc1 = acc1
         self.loss2 = loss2
         self.acc2 = acc2
-        #plot展示
+        #plot
         
         
         self.Loss1_list.append(self.loss1)
@@ -32,8 +32,8 @@ class dynamicplot:
         self.acc2_list.append(self.acc2)
     
         self.ax_loss.clear()
-        self.ax_loss.plot(self.Loss1_list)
-        self.ax_loss.plot(self.Loss2_list)
+        self.ax_loss.plot(self.Loss1_list,label = 'adam')
+        self.ax_loss.plot(self.Loss2_list,label = 'gwdc')
         # ax_loss.set_title()
         self.ax_loss.set_xlabel('Iterations')
         self.ax_loss.set_ylabel('Loss')

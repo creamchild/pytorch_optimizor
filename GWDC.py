@@ -3,7 +3,7 @@ import torch
 from torch.optim import Optimizer
 
 
-class GWDC2 (Optimizer):
+class GWDC (Optimizer):
     r"""Implements Adam algorithm.
         It has been proposed in `Adam: A Method for Stochastic Optimization`_.
         The implementation of the L2 penalty follows changes proposed in
@@ -44,10 +44,10 @@ class GWDC2 (Optimizer):
             raise ValueError ("Invalid a value: {}".format (beta3))
         defaults = dict (lr=lr, betas=betas, eps=eps,
                          weight_decay=weight_decay, amsgrad=amsgrad, beta3=beta3)
-        super (GWDC2, self).__init__ (params, defaults)
+        super (GWDC, self).__init__ (params, defaults)
 
     def __setstate__(self, state):
-        super (GWDC2, self).__setstate__ (state)
+        super (GWDC, self).__setstate__ (state)
         for group in self.param_groups:
             group.setdefault ('amsgrad', False)
             group.setdefalut ('beta3', 1e-4)

@@ -1,3 +1,3 @@
-# pytorch_AGM_master
-#admawang
+# pytorch_AGM
+
 #yini
