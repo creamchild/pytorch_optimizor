@@ -6,9 +6,9 @@
 >但是现在里面什么都没有> <
 
 #### 将之前的ipynb文件替换为了py文件
-|GWDC_cifar10_resnet34_densnet121.ipynb --> gwdc_cifar10.py|
-|GWDC_mnist_multi_perceptron.ipynb --> gwdc_mnist.py|
-|GWDC_penn_treebank_gru.ipynb --> gwdc_ptb.py|
+|GWDC_cifar10_resnet34_densnet121.ipynb|gwdc_cifar10.py|
+|GWDC_mnist_multi_perceptron.ipynb|gwdc_mnist.py|
+|GWDC_penn_treebank_gru.ipynb|gwdc_ptb.py|
 现在你不再需要ipynb文件啦，试试在命令行中执行吧：
 ```bash
 
