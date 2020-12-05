@@ -28,6 +28,14 @@ python3 gwdc_ptb.py --optim ADAM
 python3 gwdc_ptb.py --optim GWDC
 
 ```
+#### 关于C1C2C3的构想
+参考现有的例子，可否使用shell脚本来循环参数，最终运行完全部的参数
+
+关于可执行脚本的执行方法：
+```bash
+chmod +x run.sh
+./run.sh 
+```
 
 
 ### 2020年12月4日
