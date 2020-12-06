@@ -1,5 +1,6 @@
 #%matplotlib notebook
-
+import sys 
+sys.path.append(r'../')
 import torch.optim as optim
 import torch.utils.data
 import torch.backends.cudnn as cudnn
@@ -7,9 +8,10 @@ import torchvision
 from torchvision import transforms as transforms
 import numpy as np
 import torch.nn as nn
-from GWDC import GWDC
+from optimizer import ADAM
+from optimizer import GWDC
 import argparse
-from plot import dynamicplot
+#from plot import dynamicplot
 
 
 CLASSES = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
@@ -17,7 +19,7 @@ CLASSES = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 def main():
  
-    parser = argparse.ArgumentParser(description="cifar-10 with PyTorch")
+    parser = argparse.ArgumentParser(description="cifar10 CNN with PyTorch")
     parser.add_argument('--lr', default=0.001, type=float, help='learning rate')
     parser.add_argument('--epoch', default=5, type=int, help='number of epochs tp train for')
     parser.add_argument('--trainBatchSize', default=100, type=int, help='training batch size')
@@ -47,9 +49,9 @@ class Solver(object):
     def load_data(self):
         train_transform = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor()])
         test_transform = transforms.Compose([transforms.ToTensor()])
-        train_set = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
+        train_set = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=train_transform)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=self.train_batch_size, shuffle=True)
-        test_set = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=test_transform)
+        test_set = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=test_transform)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=self.test_batch_size, shuffle=False)
 
     def load_model(self):
@@ -71,7 +73,6 @@ class Solver(object):
         self.criterion = nn.CrossEntropyLoss().to(self.device)
 
     def train(self):
-        print("train:")
         self.model.train()
         train_loss = 0
         train_correct = 0
@@ -91,13 +92,12 @@ class Solver(object):
             # train_correct incremented by one if predicted right
             train_correct += np.sum(prediction[1].cpu().numpy() == target.cpu().numpy())
 
-        print('Loss: %.4f | Acc: %.3f%% '
+        print('TRAIN_Loss: %.4f | TRAIN_Acc: %.4f%% '
                          % (train_loss / (batch_num + 1), 100. * train_correct / total))
 
         return train_loss/ (batch_num + 1), train_correct / total
 
     def test(self):
-        print("test:")
         self.model.eval()
         test_loss = 0
         test_correct = 0
@@ -113,7 +113,7 @@ class Solver(object):
                 total += target.size(0)
                 test_correct += np.sum(prediction[1].cpu().numpy() == target.cpu().numpy())
 
-            print('Loss: %.4f | Acc: %.3f%% '
+            print('TEST_Loss: %.4f | TEST_Acc: %.4f%% '
                              % (test_loss / (batch_num + 1), 100. * test_correct / total))
 
         return test_loss, test_correct / total
@@ -130,7 +130,7 @@ class Solver(object):
         accuracy = 0
         for epoch in range(1, self.epochs + 1):
             #self.scheduler.step(epoch)
-            print("\n===> epoch: %d/%d" % (epoch,self.epochs))
+            print("EPOCH: %d/%d" % (epoch,self.epochs))
             train_result = self.train()
             #self.plot.showplot(train_result[0],train_result[1])
             #print(train_result)

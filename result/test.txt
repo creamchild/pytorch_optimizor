@@ -1,0 +1,17 @@
+Files already downloaded and verified
+Files already downloaded and verified
+EPOCH: 1/5
+TRAIN_Loss: 19.7762 | TRAIN_Acc: 12.6580% 
+TEST_Loss: 82.6723 | TEST_Acc: 12.8600% 
+EPOCH: 2/5
+TRAIN_Loss: 6.7405 | TRAIN_Acc: 13.4400% 
+TEST_Loss: 94.0307 | TEST_Acc: 9.7800% 
+EPOCH: 3/5
+TRAIN_Loss: 6.5826 | TRAIN_Acc: 13.5760% 
+TEST_Loss: 82.7397 | TEST_Acc: 10.5700% 
+EPOCH: 4/5
+TRAIN_Loss: 9.0214 | TRAIN_Acc: 14.3420% 
+TEST_Loss: 535.8996 | TEST_Acc: 10.6300% 
+EPOCH: 5/5
+TRAIN_Loss: 12.0293 | TRAIN_Acc: 14.8600% 
+TEST_Loss: 63.0564 | TEST_Acc: 12.7400% 

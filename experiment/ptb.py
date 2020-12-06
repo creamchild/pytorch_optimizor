@@ -1,17 +1,20 @@
+import sys 
+sys.path.append(r'../')
 import torch
 import torch.nn as nn
 import os
 import argparse
 import numpy as np
 from torch.nn.utils import clip_grad_norm_
-from data_utils import Dictionary, Corpus
+from utils import Dictionary, Corpus
 from torchnlp.datasets import penn_treebank_dataset
-from GWDC import GWDC
+from optimizer import ADAM
+from optimizer import GWDC
 
 
 #param import
 
-parser = argparse.ArgumentParser(description='GRU PTB Language Model')
+parser = argparse.ArgumentParser(description='PTB GRU with PyTorch')
 parser.add_argument('--optim', type=str, default='ADAM',
                     help='type of recurrent net (ADAM, GWDC)')
 args = parser.parse_args()
@@ -19,7 +22,7 @@ args = parser.parse_args()
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #dataset
-ROOT = './data/penn-treebank/'
+ROOT = '../data/penn-treebank/'
 if not os.path.exists(ROOT):
     penn_treebank_dataset()
 # Hyper-parameters
@@ -44,15 +47,15 @@ class RNNLM(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size, num_layers):
         super(RNNLM, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.GRU(embed_size, hidden_size, num_layers, batch_first=True)
+        self.gru = nn.GRU(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         
     def forward(self, x, h):
         # Embed word ids to vectors
         x = self.embed(x)
         
-        # Forward propagate LSTM
-        out, h = self.lstm(x)
+        # Forward propagate GRU
+        out, h = self.gru(x)
         
         # Reshape output to (batch_size*sequence_length, hidden_size)
         out = out.reshape(out.size(0)*out.size(1), out.size(2))
