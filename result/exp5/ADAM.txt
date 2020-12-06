@@ -1,0 +1,6 @@
+Start train!
+Epoch [1/5], Loss: 6.4094, Perplexity: 607.56
+Epoch [2/5], Loss: 6.2708, Perplexity: 528.90
+Epoch [3/5], Loss: 6.2347, Perplexity: 510.13
+Epoch [4/5], Loss: 6.2360, Perplexity: 510.83
+Epoch [5/5], Loss: 6.2063, Perplexity: 495.86
