@@ -1,7 +1,15 @@
 import math
 import torch
 from torch.optim import Optimizer
+__all__ = ['Adam']
 
+
+def _default_c_hook_lr(g: dict, n: int) -> float:
+    return g['lr']
+
+
+def _default_c_hook_beta(g: dict, n: int) -> float:
+    return g['betas'][0]
 
 class ADAM(Optimizer):
     r"""Implements Adam algorithm.
@@ -39,6 +47,8 @@ class ADAM(Optimizer):
             raise ValueError("Invalid beta parameter at index 1: {}".format(betas[1]))
         if not 0.0 <= weight_decay:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+        self.c_hook_lr = _default_c_hook_lr
+        self.c_hook_beta = _default_c_hook_beta
         defaults = dict(lr=lr, betas=betas, eps=eps,
                         weight_decay=weight_decay, amsgrad=amsgrad)
         super(ADAM, self).__init__(params, defaults)

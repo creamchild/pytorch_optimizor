@@ -16,7 +16,7 @@ from optimizer import GWDC
 
 parser = argparse.ArgumentParser(description='PTB GRU with PyTorch')
 parser.add_argument('--optim', type=str, default='ADAM',
-                    help='type of recurrent net (ADAM, GWDC)')
+                    help='type of optimizer (ADAM, GWDC)')
 args = parser.parse_args()
 
 # Device configuration

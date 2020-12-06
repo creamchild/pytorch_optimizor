@@ -1,7 +1,15 @@
 import math
 import torch
 from torch.optim import Optimizer
+__all__ = ['Adam']
 
+
+def _default_c_hook_lr(g: dict, n: int) -> float:
+    return g['lr']
+
+
+def _default_c_hook_beta(g: dict, n: int) -> float:
+    return g['betas'][0]
 
 class GWDC (Optimizer):
     r"""Implements Adam algorithm.
@@ -42,6 +50,8 @@ class GWDC (Optimizer):
             raise ValueError ("Invalid weight_decay value: {}".format (weight_decay))
         if not 0.0 <= beta3:
             raise ValueError ("Invalid a value: {}".format (beta3))
+        self.c_hook_lr = _default_c_hook_lr
+        self.c_hook_beta = _default_c_hook_beta
         defaults = dict (lr=lr, betas=betas, eps=eps,
                          weight_decay=weight_decay, amsgrad=amsgrad, beta3=beta3)
         super (GWDC, self).__init__ (params, defaults)

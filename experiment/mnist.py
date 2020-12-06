@@ -10,11 +10,26 @@ from optimizer import ADAM
 import os
 import math
 import numpy as np
+import argparse
 #from plot import dynamicplot
 
-EPOCH = 5
+#param import
+
+parser = argparse.ArgumentParser(description='MNIST NN with PyTorch')
+parser.add_argument('--epoch', type=int, default=5,
+                    help='number of epoch')
+parser.add_argument('--optim', type=str, default='ADAM',
+                    help='type of optimizer (ADAM, GWDC)')
+parser.add_argument('--amsgrad', type=bool, default=False,
+                    help='type of amsgrad (True, False)')
+parser.add_argument('--nntype', type=int, default=1,
+                    help='type of NN (1, 2)')
+parser.add_argument('--optimswitch', type=str, default='C1',
+                    help='type of optimizer param (C1,C2,C3,D1,D2,D3)')
+args = parser.parse_args()
+
+EPOCH = args.epoch
 BATCH_SIZE = 20
-LR = 0.01
 ROOT = "../data/mnist"
 DOWNLOAD_MNIST = False
 if not os.path.exists(ROOT):
@@ -51,31 +66,62 @@ test_data=torchvision.datasets.MNIST(
     download=DOWNLOAD_MNIST
 )
 test_loader=DataLoader(test_data,batch_size=len(test_data),shuffle=False)
- 
-#NN 
-#net=torch.nn.Sequential(
-#    nn.Linear(28*28,30),
-#    nn.ReLU()
-#    nn.Linear(30,10)
-#)
 
-#NN 2
-net=torch.nn.Sequential(
-    nn.Linear(28*28,30),
-    nn.ReLU(),
-    nn.Linear(30,30),
-    nn.ReLU(),
-    nn.Linear(30,10)
-)
+#choose NN type
+if args.nntype == 1:
+    #NN 1
+    net=torch.nn.Sequential(
+        nn.Linear(28*28,30),
+        nn.ReLU(),
+        nn.Linear(30,10)
+    )
+if args.nntype == 2:
+    #NN 2
+    net=torch.nn.Sequential(
+        nn.Linear(28*28,30),
+        nn.ReLU(),
+        nn.Linear(30,30),
+        nn.ReLU(),
+        nn.Linear(30,10)
+    )
 net = net.to(DEVICE)
 #net.to(DEVICE)
 
 loss_function=nn.CrossEntropyLoss()
-#optimizer=torch.optim.SGD(net.parameters(),lr=LR)
-optimizer = ADAM(net.parameters())
 
-#optimizer = GWDC(GWDCnet.parameters())
-#optimizers = [optimADAM, optimGWDC]
+#set optimswitch
+lr = 1e-3
+hook_lr = None
+hook_beta = None
+if args.optimswitch == 'C1':
+    lr = 1e-3
+if args.optimswitch == 'C2':
+    lr = 1e-3
+    hook_beta = lambda g, n: g['lr']
+if args.optimswitch == 'C3':
+    lr = 1e-2
+    hook_beta = lambda g, n: g['lr']
+if args.optimswitch == 'D1':
+    lr = 1
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+if args.optimswitch == 'D2':
+    lr = 1e-3
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+if args.optimswitch == 'D3':
+    lr = 1e-2
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+
+if args.optim == 'ADAM':
+    optimizer = ADAM(net.parameters(),lr=lr,amsgrad=args.amsgrad)
+if args.optim == 'GWDC':
+    optimizer = GWDC(net.parameters(),lr=lr,amsgrad=args.amsgrad)
+if hook_lr:
+    optimizer.c_hook_lr = hook_lr
+if hook_beta:
+    optimizer.c_hook_beta = hook_beta
 print("Start training")
 #DP = dynamicplot()
 #DP.plotdefine()
