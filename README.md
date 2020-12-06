@@ -1,10 +1,84 @@
 # pytorch_AGM
 
-## 说明手册
+## 说明手册（更新中）
 
 ### 运行流程
 
+#### 安装requirements.txt依赖
+```bash
+pip install -r requirements.txt
+```
+#### 编辑run.sh文件
+```bash
+cd pytorch_AGM
+cd experiment
+vim run.sh
+```
+run.sh文件中记录了本次运行的文件列表
+修改例:
+```bash
+python3 mnist.py --optim ADAM --optimswitch C2 --amsgrad True > ../result/exp1/AMSG-C2.txt
+python3 mnist.py --optim ADAM --optimswitch C3 --amsgrad True > ../result/exp1/AMSG-C3.txt
+```
+第一行代表了在python3环境下运行mnist.py文件，输入参数为--optim ADAM --optimswitch C2 --amsgrad True表示运行的是AMSG-C2
+'>'后面的内容表示结果存放的地址 在这个例子中，结果存放在result的exp1文件夹下，命名为AMSG-C2.txt
+以此类推
+
+在运行py文件之间，你可以插入一些echo命令用来打印信息，这样就可以实时看到运行的进度啦
+```bash
+echo "ADAM-C1 finished"
+```
+>具体的参数请参考输入参数说明书
+
+>如需开启多进程，则在两行命令之间加上'&'字符
+
+>警告：不推荐进行多进程处理，这有可能会使你的gpu内存溢出！
+
+#### 运行run.sh文件
+
+run.sh文件编辑完成之后运行，开始实验
+```bash
+chmod +x run.sh
+./run.sh 
+```
+
+在运行完所有实验结果之后就可以进行画图啦
+
+#### 关于试运行
+在运行整个项目之前可以进行一些试运行，这样可以确保运行的顺利，也可以提前加载数据集，使得打印结果时更稳定
+```bash
+cd pytorch_AGM
+cd experiment
+python3 mnist.py
+python3 cifar10.py
+python3 ptb.py
+```
+
+#### plot画图
+首先确认result/exp1等的文件夹中是否已经完成所有的进程，并以txt文本格式保存
+
+确认完成之后返回主目录运行plot1234.py文件
+```bash
+cd ../
+python3 plot1234.py --exp 1
+```
+注意这里的plot1234.py存在输入参数exp，代表需要画图的实验文件夹名称，但是plot5.py不需要
+
+运行完成之后你就可以在对应的文件夹中看到结果图片啦。
+例如： result/exp1/
+
+#### 完结撒花 Yeah！
+
 ### 输入参数说明书
+|输入参数|说明|默认值|可选范围|使用场景|
+|-----|-----|-----|-----|-----|
+|--epoch|可以变更epoch|5|大于0的任意整数|通用|
+|--optim|可以变更优化器|ADAM|ADAM和GWDC|通用|
+|--amsgrad|可以选择是否使用amsgrad方法|False|True和False|通用|
+|--optimswitch|可以变更学习率更新的C1C2C3|C1|C1C2C3D1D2D3|通用|
+|--nntype|可以变更神经网络类型|1|1和2|仅在mnist.py中使用|
+|--nntype|可以变更神经网络类型|resnet|resnet和densenet|仅在cifar10.py中使用|
+|--exp|可以变更需要绘图的实验文件夹|1|1 2 3 4|仅在plot1234.py中使用|
 
 ## 更新记录
 ### 2020年12月6日

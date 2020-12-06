@@ -21,11 +21,15 @@ def main():
  
     parser = argparse.ArgumentParser(description="cifar10 CNN with PyTorch")
     parser.add_argument('--lr', default=0.001, type=float, help='learning rate')
-    parser.add_argument('--epoch', default=5, type=int, help='number of epochs tp train for')
+    parser.add_argument('--epoch', type=int, default=5, help='number of epoch')
     parser.add_argument('--trainBatchSize', default=100, type=int, help='training batch size')
     parser.add_argument('--testBatchSize', default=100, type=int, help='testing batch size')
     parser.add_argument('--cuda', default=torch.cuda.is_available(), type=bool, help='whether cuda is in use')
-    args = parser.parse_args(args=[])
+    parser.add_argument('--optim', type=str, default='ADAM',help='type of optimizer (ADAM, GWDC)')
+    parser.add_argument('--amsgrad', type=bool, default=False,help='type of amsgrad (True, False)')
+    parser.add_argument('--nntype', type=str, default='resnet',help='type of NN (resnet, densenet)')
+    parser.add_argument('--optimswitch', type=str, default='C1',help='type of optimizer param (C1,C2,C3,D1,D2,D3)')
+    args = parser.parse_args()
 
     solver = Solver(args)
     solver.run()
@@ -45,6 +49,10 @@ class Solver(object):
         self.cuda = config.cuda
         self.train_loader = None
         self.test_loader = None
+        self.optim = config.optim
+        self.amsgrad = config.amsgrad
+        self.nntype = config.nntype
+        self.optimswitch = config.optimswitch
 
     def load_data(self):
         train_transform = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor()])
@@ -60,12 +68,44 @@ class Solver(object):
             cudnn.benchmark = True
         else:
             self.device = torch.device('cpu')
-
-        self.model = torchvision.models.resnet34().to(self.device)
-        #self.model = torchvision.models.densenet121().to(self.device)
+        if self.nntype == 'resnet':
+            self.model = torchvision.models.resnet34().to(self.device)
+        if self.nntype == 'densenet':  
+            self.model = torchvision.models.densenet121().to(self.device)
         #choose resnet34&Densenet121
         
-        self.optimizer = GWDC(self.model.parameters())
+        #set optimswitch
+        hook_lr = None
+        hook_beta = None
+        if self.optimswitch == 'C1':
+            lr = 1e-3
+        if self.optimswitch == 'C2':
+            lr = 1e-3
+            hook_beta = lambda g, n: g['lr']
+        if self.optimswitch == 'C3':
+            lr = 1e-2
+            hook_beta = lambda g, n: g['lr']
+        if self.optimswitch == 'D1':
+            lr = 1
+            hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+            hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+        if self.optimswitch == 'D2':
+            lr = 1e-3
+            hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+            hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+        if self.optimswitch == 'D3':
+            lr = 1e-2
+            hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+            hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+
+        if self.optim == 'ADAM':
+            self.optimizer = ADAM(self.model.parameters(),lr = lr, amsgrad = self.amsgrad)
+        if self.optim == 'GWDC':
+            self.optimizer = GWDC(self.model.parameters(),amsgrad = self.amsgrad)
+        if hook_lr:
+            self.optimizer.c_hook_lr = hook_lr
+        if hook_beta:
+            self.optimizer.c_hook_beta = hook_beta
         #GWDC
         #self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         #self.scheduler = optim.lr_scheduler.MultiStepLR(self.optimizer, milestones=[75, 150], gamma=0.5)

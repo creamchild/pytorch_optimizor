@@ -15,8 +15,14 @@ from optimizer import GWDC
 #param import
 
 parser = argparse.ArgumentParser(description='PTB GRU with PyTorch')
+parser.add_argument('--epoch', type=int, default=5,
+                    help='number of epoch')
 parser.add_argument('--optim', type=str, default='ADAM',
                     help='type of optimizer (ADAM, GWDC)')
+parser.add_argument('--amsgrad', type=bool, default=False,
+                    help='type of amsgrad (True, False)')
+parser.add_argument('--optimswitch', type=str, default='C1',
+                    help='type of optimizer param (C1,C2,C3,D1,D2,D3)')
 args = parser.parse_args()
 
 # Device configuration
@@ -29,11 +35,11 @@ if not os.path.exists(ROOT):
 embed_size = 128
 hidden_size = 1024
 num_layers = 3
-num_epochs = 5
+num_epochs = args.epoch
 num_samples = 1000     # number of words to be sampled
 batch_size = 20
 seq_length = 30
-learning_rate = 0.002
+lr = 0.001
 
 # Load "Penn Treebank" dataset
 corpus = Corpus()
@@ -68,12 +74,37 @@ model = RNNLM(vocab_size, embed_size, hidden_size, num_layers).to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
+
+hook_lr = None
+hook_beta = None
+if args.optimswitch == 'C1':
+    lr = 1e-3
+if args.optimswitch == 'C2':
+    lr = 1e-3
+    hook_beta = lambda g, n: g['lr']
+if args.optimswitch == 'C3':
+    lr = 1e-2
+    hook_beta = lambda g, n: g['lr']
+if args.optimswitch == 'D1':
+    lr = 1
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+if args.optimswitch == 'D2':
+    lr = 1e-3
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
+if args.optimswitch == 'D3':
+    lr = 1e-2
+    hook_lr = lambda g, n: g['lr'] * (n ** -0.5)
+    hook_beta = lambda g, n: g['lr'] * (2 ** (-n))
 if args.optim == 'ADAM':
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = ADAM(model.parameters(),lr=lr,amsgrad = args.amsgrad)
 if args.optim == 'GWDC':
-    optimizer = GWDC(model.parameters())
-if args.optim == 'SGD':
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate,momentum=0.9)
+    optimizer = GWDC(model.parameters(),lr=lr,amsgrad = args.amsgrad)
+if hook_lr:
+    optimizer.c_hook_lr = hook_lr
+if hook_beta:
+    optimizer.c_hook_beta = hook_beta
 # Truncated backpropagation
 def detach(states):
     return [state.detach() for state in states] 
