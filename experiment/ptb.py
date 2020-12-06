@@ -30,7 +30,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #dataset
 ROOT = '../data/penn-treebank/'
 if not os.path.exists(ROOT):
-    penn_treebank_dataset()
+    penn_treebank_dataset(ROOT)
 # Hyper-parameters
 embed_size = 128
 hidden_size = 1024
