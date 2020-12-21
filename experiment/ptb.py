@@ -44,6 +44,7 @@ lr = 0.001
 # Load "Penn Treebank" dataset
 corpus = Corpus()
 ids = corpus.get_data(ROOT+'ptb.train.txt', batch_size)
+test_ids = corpus.get_data(ROOT+'ptb.test.txt', batch_size)
 vocab_size = len(corpus.dictionary)
 num_batches = ids.size(1) // seq_length
 
@@ -133,6 +134,18 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         step = (i+1) // seq_length
+        
+        
+    for i in range(0, test_ids.size(1) - seq_length, seq_length):
+        # Get mini-batch inputs and targets
+        inputs = test_ids[:, i:i+seq_length].to(device)
+        targets = test_ids[:, (i+1):(i+1)+seq_length].to(device)
+        
+        # Forward pass
+        states = detach(states)
+        outputs, states = model(inputs, states)
+        test_loss = criterion(outputs, targets.reshape(-1))
+     
         #if step % 100 == 0:
-    print ('Epoch [{}/{}], Loss: {:.4f}, Perplexity: {:5.2f}'
-                   .format(epoch+1, num_epochs, loss.item(), np.exp(loss.item())))
+    print ('Epoch [{}/{}], Train_Loss: {:.4f}, Perplexity: {:5.2f}, Test_Loss: {:.4f}, Perplexity: {:5.2f}'
+                   .format(epoch+1, num_epochs, loss.item(), np.exp(loss.item()),test_loss.item(), np.exp(test_loss.item())))

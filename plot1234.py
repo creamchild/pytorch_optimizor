@@ -46,7 +46,7 @@ for t in true_files:
                 train_acc.append(float(line[line.find('c:')+3:]))
     train_accs.append(train_acc)
     
-epoch = np.arange(1,len(train_loss)+1,1)
+epoch = np.arange(1,len(train_loss)+1)
 
 label = []
 for i in range(len(train_losses)):
@@ -54,7 +54,7 @@ for i in range(len(train_losses)):
     label.append(true_files[i][:true_files[i].find('.')])
 plt.xlabel('epoch')
 plt.ylabel('training loss')
-plt.xticks(range(1,len(epoch)+1))
+plt.xticks(range(1,len(epoch)+1,2))
 plt.legend(label, loc='upper right')
 plt.savefig(IO+'plot_loss.jpg')
 plt.cla()

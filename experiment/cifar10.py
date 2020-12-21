@@ -10,6 +10,7 @@ import numpy as np
 import torch.nn as nn
 from optimizer import ADAM
 from optimizer import GWDC
+from efficientnet_pytorch import EfficientNet
 import argparse
 #from plot import dynamicplot
 
@@ -72,6 +73,8 @@ class Solver(object):
             self.model = torchvision.models.resnet34().to(self.device)
         if self.nntype == 'densenet':  
             self.model = torchvision.models.densenet121().to(self.device)
+        if self.nntype == 'efnet': 
+            self.model = EfficientNet.from_pretrained('efficientnet-b0').to(self.device)
         #choose resnet34&Densenet121
         
         #set optimswitch

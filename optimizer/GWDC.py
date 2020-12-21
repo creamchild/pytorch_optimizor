@@ -123,13 +123,14 @@ class GWDC (Optimizer):
                 exp_avg.mul_ (beta1).add_ (grad, alpha=1 - beta1)
                 exp_avg_sq.mul_ (beta2).addcmul_ (grad, grad, value=1 - beta2)
 
-                n = 0.1 - 0.1 / (1 - beta2) * state['step']
-                u = 0.1 + 0.1 / (1 - beta2) * state['step']
+                n = 0.1 - 0.1 / (1 - beta2) / state['step']
+                u = 0.1 + 0.1 / (1 - beta2) / state['step']
 
                 if amsgrad:
                     # Maintains the maximum of all 2nd moment running avg. till now
                     torch.max (max_exp_avg_sq, exp_avg_sq, out=max_exp_avg_sq)
                     eta_hat = torch.clamp (group['lr'] / max_exp_avg_sq, min=n, max=u)
+                    eta = eta_hat / math.sqrt (state['step'])
                     # Use the max. for normalizing running avg. of gradient
                     # denom = (max_exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(group['eps'])
                     # denom = max_exp_avg_sq.sqrt().add_(group['eps'])
